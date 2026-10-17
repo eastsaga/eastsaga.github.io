@@ -434,6 +434,7 @@ body.pmode{overflow:auto}
 .mback{position:sticky;top:0;z-index:6;display:grid;place-items:center;width:42px;height:42px;padding:0;margin:0 0 -42px;border-radius:50%;font-size:22px;line-height:1;background:rgba(20,22,28,.85);border:1px solid var(--line2);backdrop-filter:blur(4px)}
 .modal .cd{padding-top:0}
 .hero .ttl{font-family:'SGBrush',var(--f-disp);font-weight:400;letter-spacing:.04em}.hero .ttl .htw{position:relative;display:inline-block;padding:0 .1em;line-height:1}.hero .ttl .brush{position:absolute;left:-12%;right:-12%;top:30%;height:52%;background:radial-gradient(60% 50% at 50% 50%,rgba(150,22,34,.8),rgba(110,14,24,.5) 60%,transparent 72%);filter:blur(3px);transform:rotate(-4deg);pointer-events:none}.hero .ttl .lgg{position:relative;background:linear-gradient(172deg,#fff6d6 0%,#f3d58a 30%,#c4903a 58%,#f7e1a0 76%,#7d4f16 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #2a1606) drop-shadow(0 0 14px rgba(227,194,122,.35))}.hero .ttl .seal{position:absolute;right:-.16em;top:-.1em;display:grid;place-items:center;width:.36em;height:.36em;background:#b3262e;font-style:normal;border-radius:.04em;box-shadow:inset 0 0 0 2px #f6e3c8,inset 0 0 0 3px #b3262e;transform:rotate(-6deg);overflow:hidden}.hero .ttl .seal b{font-family:'SGBrush',serif;font-size:.29em;font-weight:400;line-height:1;color:#f6e3c8}.hero .ttl small{font-family:var(--f-disp);letter-spacing:.06em;margin-top:6px}
+.lgclaude{display:block;padding:12px;border-radius:12px;border:1px solid var(--line2);background:rgba(20,22,28,.7);color:var(--fg);text-decoration:none;font-size:15px;font-weight:700}
 </style>
 <div id="app"></div>
 <script>
@@ -1512,10 +1513,10 @@ function topbar(){const back=VIEW!=='home'?'<button class="back" data-nav="home"
   return '<div class="topbar">'+back+'<span class="logo">'+(VIEW==='home'?'삼계전':esc(ttl))+'</span><div class="res"><span class="chip">승리 <b>'+SAVE.wins+'</b></span><span class="chip">관문 <b>'+SAVE.cleared+'</b>/15</span><span class="chip">장비 <b>'+SAVE.inv.length+'</b></span><button class="mini pchip" data-nav="profile" title="프로필">'+avaHtml()+'<b>'+esc(nickOf())+'</b></button><button class="mini" data-nav="settings" title="설정">⚙ 설정</button></div></div>';}
 function loginHtml(){const HAS_CLAUDE=(function(){try{return !!(window.claude&&typeof window.claude.use==='function')||/(^|\.)claude(usercontent)?\.(ai|com)$/.test(location.hostname);}catch(e){return false;}})();
   return '<div class="login"><div class="lgbg"></div><div class="lgart" role="img" aria-label="구미호·키츠네 술사·사일 궁수의 대결"></div><div class="lgwide"></div><div class="lgshade"></div><div class="lgbox"><div class="big"><span class="brush"></span><span class="lgg">三界戰</span><i class="seal" title="만든 사람 · 元"><b>元</b></i></div><div class="sub">SAMGYEJEON · HANNAH · 2026.10.18</div>'+
-  (HAS_CLAUDE?'<button class="gold" data-act="loginClaude"'+(CLOUD.busy?' disabled':'')+'>'+(CLOUD.busy?'연결 중…':'Claude 계정으로 로그인')+'</button>':'')+
-  '<button'+(HAS_CLAUDE?'':' class="gold"')+' data-act="loginGuest">'+(HAS_CLAUDE?'게스트로 시작':'시작하기')+'</button>'+
+  (HAS_CLAUDE?'<button class="gold" data-act="loginClaude"'+(CLOUD.busy?' disabled':'')+'>'+(CLOUD.busy?'연결 중…':'Claude 계정으로 로그인')+'</button>':'<a class="lgclaude" href="https://claude.ai/artifact/GpHi7poFexFAKCTU2oAqgh" target="_blank" rel="noopener">Claude 계정으로 로그인 ↗</a>')+
+  '<button'+(HAS_CLAUDE?'':' class="gold"')+' data-act="loginGuest">게스트로 시작</button>'+
   (CLOUD.err?'<div class="lgnote" style="color:var(--hpbad)">'+esc(CLOUD.err)+'</div>':'')+
-  '<div class="lgnote">'+(HAS_CLAUDE?'Claude 계정으로 로그인하면 진행 기록이 계정에 저장돼 다른 기기에서도 이어 할 수 있어요. 비밀번호는 받지 않아요.<br>게스트는 이 기기의 브라우저에만 저장돼요.':'진행 기록은 이 기기의 브라우저에 저장돼요.')+'</div></div></div>';}
+  '<div class="lgnote">'+(HAS_CLAUDE?'Claude 계정으로 로그인하면 진행 기록이 계정에 저장돼 다른 기기에서도 이어 할 수 있어요. 비밀번호는 받지 않아요.<br>게스트는 이 기기의 브라우저에만 저장돼요.':'게스트 기록은 이 기기에만 저장돼요. Claude 계정으로 하려면 Claude 앱 안에서 열려요(기록은 따로 저장).')+'</div></div></div>';}
 function titlesOf(){const ml=Object.values(SAVE.mastery||{}).flat().reduce((a,e)=>a+lvlOf(e),0);const r=partyRealm();
   return [['첫 승리',SAVE.wins>=1],['백전노장',SAVE.wins>=50],['원정 개시',SAVE.cleared>=1],['다섯 관문',SAVE.cleared>=5],['삼계 정복',SAVE.cleared>=15],['장비 수집가',SAVE.inv.length>=30],['숙련자',ml>=40],['무계의 계약자',r==='MG']];}
 function profileHtml(){ensureProf();const pf=SAVE.prof;const av=pf.avatar&&CH[pf.avatar]?pf.avatar:(SAVE.party[0]||'cq_hwarang');
@@ -1868,7 +1869,7 @@ app.addEventListener('click',e=>{
   if(d.act==='music'){BGM.toggle();render();return;}
   if(d.act==='loginClaude'){loginClaude();return;}
   if(d.act==='loginGuest'){loginGuest();return;}
-  if(d.act==='logout'){logout();return;}
+  if(d.act==='logout'){if(!window.confirm('정말 로그아웃할까요?'+((ACCT&&ACCT.mode==='claude')?'':'\n게스트 기록은 이 기기에 그대로 남아 있어요.')))return;logout();return;}
   if(d.act==='setMusic'){if((d.v==='1')!==BGM.on)BGM.toggle();render();return;}
   if(d.act==='setMusicSrc'){SAVE.musicSrc=d.v==='1'?'file':'synth';persist();BGM.reload();BGM.set(bgmName());render();return;}
   if(d.act==='setSound'){if((d.v==='1')!==SFX.on)SFX.toggle();render();return;}
