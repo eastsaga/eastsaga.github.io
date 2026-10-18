@@ -4,7 +4,7 @@
 var OK={ko:1,en:1,zh:1,ja:1,es:1};if(!OK[L]){var n=((navigator.languages&&navigator.languages[0])||navigator.language||'ko').toLowerCase().slice(0,2);L=OK[n]?n:'en';}
 window.SG_LANG=L;try{document.documentElement.lang=L;}catch(e){}
 window.__t=function(s){var d=window.I18N&&window.I18N[L];if(!d||L==='ko')return s;var r=d[s];return r==null?s:r;};})();</script>
-<script src="i18n.js?v=5"></script>
+<script src="i18n.js?v=6"></script>
 <title>EAST SAGA</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -406,6 +406,19 @@ body.pmode{overflow:auto}
 .termpop{position:fixed;z-index:300;background:#241d2e;border:1.5px solid var(--gold);border-radius:10px;padding:8px 11px;font-size:12.5px;line-height:1.5;color:#f3ecdf;box-shadow:0 8px 28px rgba(0,0,0,.6);animation:galin .15s ease}
 .termpop b{color:var(--gold)}
 /* 로그인·프로필·설정 */
+.mzw{max-width:520px}
+.mznow{display:flex;align-items:center;gap:14px;margin:10px 0 12px;padding:14px;border:1px solid var(--line2);border-radius:14px;background:linear-gradient(135deg,rgba(255,210,120,.08),rgba(120,140,255,.06))}
+.mzdisc{width:64px;height:64px;border-radius:50%;flex:none;background:radial-gradient(circle,#111 0 14%,var(--gold) 15% 18%,#1a1a22 19% 60%,#2a2a36 61% 100%);box-shadow:0 0 14px rgba(255,210,120,.35);animation:mzspin 4s linear infinite;animation-play-state:paused}
+.mzw.playing .mzdisc{animation-play-state:running}
+@keyframes mzspin{to{transform:rotate(360deg)}}
+.mzinfo{display:flex;flex-direction:column;gap:3px;min-width:0}.mzinfo b{font-family:var(--f-disp);font-size:20px;color:var(--gold)}.mzinfo small{opacity:.75}
+.mzprog{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;cursor:pointer}.mzprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.mzctl{display:flex;justify-content:center;gap:14px;margin:12px 0 16px}.mzctl button{width:56px;height:56px;border-radius:50%;font-size:20px}
+.mzlist{display:flex;flex-direction:column;gap:6px}
+.mzrow{display:flex;align-items:center;gap:12px;text-align:left;padding:10px 12px;border-radius:10px}.mzrow span{display:flex;flex-direction:column}.mzrow small{opacity:.7}
+.mzrow.on{border-color:var(--gold);box-shadow:0 0 10px rgba(255,210,120,.3)}.mzrow.on b{color:var(--gold)}
+.mzn{width:22px;opacity:.6;font-family:var(--f-disp)}
+
 .sweepsl{position:fixed;z-index:94;height:6px;margin-top:-3px;pointer-events:none;background:linear-gradient(90deg,transparent,#fff 20%,#ff8a5c 60%,transparent);box-shadow:0 0 18px #ff6a3d;border-radius:3px;animation:sweepsl .45s ease-out forwards;transform:rotate(-4deg)}
 @keyframes sweepsl{0%{clip-path:inset(0 100% 0 0);opacity:1}55%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:0}}
 .piercel{position:fixed;z-index:94;height:7px;margin-top:-3.5px;transform-origin:0 50%;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.2),#fff 40%,#ffd166 80%,transparent);box-shadow:0 0 20px #ffd166;border-radius:4px;animation:sweepsl .4s ease-out forwards}
@@ -1669,7 +1682,7 @@ const BGM=(()=>{let ctx=null,master=null,timer=null,cur=null,next=0,step=0;
     if(S.drum)while(tr.drum.t<ahead){const k=S.drum[tr.drum.i%S.drum.length];if(k!=='.')drum(k,tr.drum.t);tr.drum.t+=bt/4;tr.drum.i++;}}
   function stop(){if(timer){clearInterval(timer);timer=null;}}
   // 파일 음원(진영별 전투곡 등). 없으면 합성음으로 대체
-  const FILES={lobby:'bgm_home.mp3',battle_CQ:'bgm_cq.mp3',battle_GL:'bgm_gl.mp3?v=3',battle_DK:'bgm_dk.mp3?v=2',battle_MG:'bgm_mg.mp3?v=1'};let au=null,auName=null;
+  const FILES={lobby:'bgm_home.mp3',battle_CQ:'bgm_cq.mp3',battle_GL:'bgm_gl.mp3?v=3',battle_DK:'bgm_dk.mp3?v=2',battle_MG:'bgm_mg.mp3?v=1',battle_boss:'bgm_boss.mp3?v=1'};let au=null,auName=null;
   function stopFile(){if(au){try{au.pause();}catch(e){}}auName=null;}
   function playFile(name){const src=FILES[name];if(!au){au=new Audio();au.loop=true;au.preload='auto';au.volume=0.55;}
     if(auName===name&&!au.paused)return true;if(auName===name&&au.paused&&au.src&&au.src.indexOf(src)>=0){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{window.__sgUnlocked=false;});return true;}auName=name;try{au.src=src;au.currentTime=0;if(name==='lobby'){const sk=()=>{try{au.currentTime=6;}catch(e){}au.removeEventListener('loadedmetadata',sk);};if(au.readyState>=1)sk();else au.addEventListener('loadedmetadata',sk);}const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{auName=null;cur=null;window.__sgUnlocked=false;});}catch(e){return false;}return true;}
@@ -1677,12 +1690,13 @@ const BGM=(()=>{let ctx=null,master=null,timer=null,cur=null,next=0,step=0;
       if(FILES[name]&&SAVE.musicSrc!=='synth'){if(cur===name&&auName===name&&au&&!au.paused)return;stop();cur=name;if(playFile(name))return;}
       stopFile();const base=name.startsWith('battle')?'battle':name;if(!ac())return;if(base===cur&&timer)return;cur=base;reset();stop();timer=setInterval(tick,60);tick();},
     reload(){stop();stopFile();cur=null;},
+    audio(){return au;},
     kick(){if(!on()||SAVE.musicSrc==='synth')return;try{if(au&&auName&&au.paused&&!au._bg){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}},
     pauseAll(){try{if(au&&!au.paused){au.pause();au._bg=1;}}catch(e){}try{if(ctx&&ctx.state==='running')ctx.suspend();}catch(e){}},
     resumeAll(){if(!on())return;try{if(au&&au._bg){au._bg=0;if(auName){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}}}catch(e){}try{if(ctx&&ctx.state==='suspended')ctx.resume();}catch(e){}},
     toggle(){SAVE.music=!on();persist();if(!on()){stop();stopFile();cur=null;}},get on(){return on();}};})();
 function defRealm(){try{if(BCTX){if(BCTX.defRealm)return BCTX.defRealm;if(BCTX.eRealm)return BCTX.eRealm;}}catch(e){}return partyRealm()||'CQ';}
-function bgmName(){if(VIEW!=='battle')return 'lobby';try{const r=defRealm();return r?'battle_'+r:'battle';}catch(e){return 'battle';}}
+function bgmName(){if(VIEW==='music')return MUSIC.sel||'lobby';if(VIEW!=='battle')return 'lobby';try{if(BCTX&&BCTX.boss&&BCTX.mode!=='free'&&BCTX.mode!=='pvp')return 'battle_boss';const r=defRealm();return r?'battle_'+r:'battle';}catch(e){return 'battle';}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)BGM.pauseAll();else BGM.resumeAll();});
 window.addEventListener('pagehide',()=>BGM.pauseAll());window.addEventListener('blur',()=>{if(document.hidden)BGM.pauseAll();});
 function sgUnlock(){if(window.__sgUnlocked){BGM.kick();return;}window.__sgUnlocked=true;try{SFX.unlock();}catch(e){}BGM.set(bgmName());}
@@ -1696,7 +1710,7 @@ function render(){if(window.__sgUnlocked)BGM.set(bgmName());try{if(SAVE&&SAVE.cl
   let h='';
   if(VIEW==='login'||TITLE)h+=loginHtml();
   else if(VIEW==='battle')h+=battleHtml();
-  else{h+='<div class="scr">'+topbar()+(VIEW==='home'?lobbyHtml():VIEW==='map'?mapHtml():VIEW==='party'?partyHtml():VIEW==='bag'?bagHtml():VIEW==='profile'?'<div class="body">'+profileHtml()+'</div>':VIEW==='settings'?'<div class="body">'+settingsHtml()+'</div>':VIEW==='online'?onlineHtml():VIEW==='friends'?friendsHtml():rulesHtml())+'</div>';}
+  else{h+='<div class="scr">'+topbar()+(VIEW==='home'?lobbyHtml():VIEW==='map'?mapHtml():VIEW==='party'?partyHtml():VIEW==='bag'?bagHtml():VIEW==='profile'?'<div class="body">'+profileHtml()+'</div>':VIEW==='settings'?'<div class="body">'+settingsHtml()+'</div>':VIEW==='online'?onlineHtml():VIEW==='friends'?friendsHtml():VIEW==='music'?musicHtml():rulesHtml())+'</div>';}
   if(VIEW==='battle'&&ROOM&&ROOM.waiting&&!MODAL)h+=__t('<div class="pvpw">상대의 명령을 기다리는 중…</div>');
   h+=detailHtml()+modalHtml();if(HISTV!=null)h+=histModal();if(SOC.view&&VIEW==='profile'&&HISTV!=null)h+=friendView(SOC.view);
   if(GAL)h+=galHtml();
@@ -1717,7 +1731,7 @@ function fitBoards(){const f=document.querySelector('.field');if(!f)return;const
   else{const fw=f.clientWidth-12,fh=f.clientHeight-12-40;cw=Math.floor(Math.min((fw-gap*(SG.W-1))/SG.W,((fh/2)-gap*(SG.H-1))/SG.H*100/130));}
   f.style.setProperty('--cw',cw+'px');f.style.setProperty('--ch',Math.floor(cw*1.3)+'px');}
 function topbar(){const back=VIEW!=='home'?__t('<button class="back" data-nav="home">← 로비</button>'):'';
-  const ttl={home:'',map:__t('원정'),party:__t('파티 편성'),bag:__t('가방'),rules:__t('규칙'),profile:__t('프로필'),settings:__t('설정'),online:__t('대전'),friends:__t('친구')}[VIEW];
+  const ttl={home:'',map:__t('원정'),party:__t('파티 편성'),bag:__t('가방'),rules:__t('규칙'),profile:__t('프로필'),settings:__t('설정'),online:__t('대전'),friends:__t('친구'),music:__t('음악 감상')}[VIEW];
   return '<div class="topbar">'+back+'<span class="logo">'+(VIEW==='home'?'EAST SAGA':esc(ttl))+__t('</span><div class="res"><span class="chip">승리 <b>')+SAVE.wins+__t('</b></span><span class="chip">관문 <b>')+SAVE.cleared+'</b>/'+NST+__t('</span><span class="chip">장비 <b>')+SAVE.inv.length+__t('</b></span><button class="mini pchip" data-nav="profile" title="프로필">')+avaHtml()+'<b>'+esc(nickOf())+__t('</b></button><button class="mini" data-nav="settings" title="설정">⚙ 설정</button></div></div>');}
 function loginHtml(){const HAS_CLAUDE=(function(){try{return !!(window.claude&&typeof window.claude.use==='function')||/(^|\.)claude(usercontent)?\.(ai|com)$/.test(location.hostname);}catch(e){return false;}})();
   return (TITLE&&VIEW!=='login'?'<div class="login lgtitle" data-act="titleGo">':'<div class="login">')+__t('<div class="lgbg"></div><div class="lgart" role="img" aria-label="화랑 검무사·키츠네 술사·빙한 선자"></div><div class="lgwide"></div><div class="lgshade"></div><div class="lgbox"><div class="big"><span class="brush"></span><span class="lgg">EAST SAGA</span></div>')+
@@ -1765,6 +1779,7 @@ function lobbyHtml(){const r=partyRealm();
     pl('data-go="free"','MEZ',__t('연습 대전'),__t('파티 평균 레벨의 무작위 진영 · 경험치·숙련도 획득'),'',!ready)+
     pl('data-go="online"','ASSASSIN',__t('대전'),__t('AI 또는 사람과 1:1 · 랜덤 매칭 · 친구')+((SOC&&Object.keys(SOC.invites||{}).length)?__t(' · <b style="color:var(--gold)">초대 ')+Object.keys(SOC.invites).length+'</b>':''),'',false)+
     ((typeof fbAvail==='function'&&fbAvail())?pl('data-nav="friends"','BUFFER',__t('친구'),__t('친구 목록 · 친구 추가 · 대전 신청')+((SOC&&Object.keys(SOC.reqs||{}).length)?__t(' · <b style="color:var(--gold)">신청 ')+Object.keys(SOC.reqs).length+'</b>':''),'',false):'')+
+    pl('data-nav="music"','charm',__t('음악 감상'),__t('게임 배경음악 모아 듣기 · 진영별 전투곡 · 보스전'),'',false)+
     pl('data-nav="party"','SUMMONER',__t('파티 편성'),__t('45명 중 한 진영 6명 · 장비 장착'),SAVE.party.length<6?'main':'')+
     pl('data-nav="bag"','charm',__t('가방'),__t('보유 장비 ')+SAVE.inv.length+__t('개'))+
     pl('data-go="tut"','HEALER',__t('튜토리얼'),__t('처음이라면 · 실제 전투를 따라 하며 규칙 익히기 (약 5분)'),SAVE.tutDone?'':'tutp')+
@@ -2404,6 +2419,22 @@ function friendsBox(){let h='';const rq=Object.entries(SOC.reqs||{});
 const fl=Object.keys(SOC.friends||{});h+=fl.length?fl.map(friendRow).join(''):__t('<p class="small mut">아직 친구가 없어요. 친구 아이디로 추가해 보세요.</p>');
   h+=__t('<div class="oljoin"><input id="frName" maxlength="12" placeholder="친구 아이디"><button data-act="frAdd">친구 추가</button></div>')+(SOC.addErr?'<div class="fbe">'+esc(SOC.addErr)+'</div>':'');
   return h;}
+// ── 음악 감상 ──
+var MUSIC={sel:'lobby',iv:null};
+const TRACKS=[['lobby',__t('홈 테마'),__t('로비·메뉴 화면')],['battle_CQ','Chaos and Melody',__t('청구 진영 전투')],['battle_DK','怨霊の舞',__t('요로즈 진영 전투')],['battle_GL','Peak Duel',__t('곤륜 진영 전투')],['battle_MG','Neon Armageddon',__t('무계 관문 전투')],['battle_boss','Shadow of the Pharaoh',__t('보스 관문 (5·10관문)')]];
+function mzFmt(t){t=Math.max(0,Math.floor(t||0));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
+function mzTick(){const au=BGM.audio&&BGM.audio();const bar=document.getElementById('mzbar'),tm=document.getElementById('mztm'),pb=document.getElementById('mzpb');if(!bar){clearInterval(MUSIC.iv);MUSIC.iv=null;return;}
+  const d=au&&au.duration||0,c=au&&au.currentTime||0;bar.style.width=(d?c/d*100:0)+'%';if(tm)tm.textContent=mzFmt(c)+' / '+mzFmt(d);if(pb)pb.textContent=(au&&!au.paused)?'⏸':'▶';const w=document.querySelector('.mzw');if(w)w.classList.toggle('playing',!!(au&&!au.paused));}
+function musicHtml(){if(!MUSIC.iv)MUSIC.iv=setInterval(mzTick,400);setTimeout(mzTick,50);
+  const tr=TRACKS.find(t=>t[0]===MUSIC.sel)||TRACKS[0];
+  let h=__t('<div class="body"><div class="olw mzw"><h2>음악 감상</h2>');
+  if(SAVE.musicSrc==='synth')h+=__t('<p class="small mut">설정의 「음악 버전」이 「기본」이라 전자음으로 나와요. 「새 음악」으로 바꾸면 원곡이 나와요.</p>');
+  h+='<div class="mznow"><div class="mzdisc"></div><div class="mzinfo"><b>'+esc(tr[1])+'</b><small>'+esc(tr[2])+'</small></div></div>';
+  h+='<div class="mzprog" data-act="mzSeek"><i id="mzbar"></i></div><div class="small mut" id="mztm" style="text-align:right">0:00 / 0:00</div>';
+  h+='<div class="mzctl"><button data-act="mzPrev">⏮</button><button class="gold" id="mzpb" data-act="mzPlay">▶</button><button data-act="mzNext">⏭</button></div>';
+  h+='<div class="mzlist">'+TRACKS.map(([k,t,d],i)=>'<button class="mzrow'+(k===MUSIC.sel?' on':'')+'" data-act="mzPick" data-v="'+k+'"><span class="mzn">'+(i+1)+'</span><span><b>'+esc(t)+'</b><small>'+esc(d)+'</small></span></button>').join('')+'</div>';
+  return h+'</div></div>';}
+function mzPlay(k){if(k)MUSIC.sel=k;if(!BGM.on){try{BGM.toggle();}catch(e){}}window.__sgUnlocked=true;BGM.set(bgmName());const au=BGM.audio&&BGM.audio();if(au&&au.paused){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}render();}
 function friendsHtml(){let h='<div class="body"><div class="olw">';
   if(!fbAvail()||!ACCT||ACCT.mode!=='fb')return h+__t('<h2>친구</h2><p class="mut">친구 기능은 로그인해야 쓸 수 있어요.</p>')+(fbAvail()?__t('<button class="gold" data-act="fbGoLogin">로그인하러 가기</button>'):'')+'</div></div>';
   const fl=Object.keys(SOC.friends||{});const on=fl.filter(u=>{const p=SOC.pub[u];return p&&p.t&&Date.now()-p.t<5*60e3;}).length;
@@ -2488,6 +2519,10 @@ app.addEventListener('click',e=>{
   if(d.act==='pvpCreate'){pvpCreate();return;}if(d.act==='pvpJoin'){pvpJoin();return;}
   if(d.act==='pvpCancel'){pvpLeave();VIEW='online';render();return;}
   if(d.act==='mmStart'){mmStart();return;}if(d.act==='mmCancel'){mmStop();return;}
+  if(d.act==='mzPick'){mzPlay(d.v);return;}
+  if(d.act==='mzPlay'){const au=BGM.audio&&BGM.audio();if(au&&!au.paused&&BGM.on){au.pause();mzTick();}else mzPlay();return;}
+  if(d.act==='mzNext'||d.act==='mzPrev'){const i=TRACKS.findIndex(t=>t[0]===MUSIC.sel);const n=(i+(d.act==='mzNext'?1:TRACKS.length-1))%TRACKS.length;mzPlay(TRACKS[n][0]);return;}
+  if(d.act==='mzSeek'){const au=BGM.audio&&BGM.audio();if(au&&au.duration){const r=t.getBoundingClientRect();au.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*au.duration;mzTick();}return;}
   if(d.act==='viewCaster'){if(UI.caster){UI.view={uid:UI.caster};UI.sheet=null;render();}return;}
   if(d.act==='fxFast'){SAVE.fxFast=!SAVE.fxFast;FXF=SAVE.fxFast?2.5:1;persist();t.textContent=SAVE.fxFast?__t('▶ 보통 속도'):__t('▶▶ 빠르게');return;}
   if(d.act==='setLang'){try{localStorage.setItem('samgyejeon_lang',d.v);}catch(e){}location.reload();return;}
