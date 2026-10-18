@@ -1539,7 +1539,7 @@ function render(){if(window.__sgUnlocked)BGM.set(bgmName());
   let h='';
   if(VIEW==='login')h+=loginHtml();
   else if(VIEW==='battle')h+=battleHtml();
-  else{h+='<div class="scr">'+topbar()+(VIEW==='home'?lobbyHtml():VIEW==='map'?mapHtml():VIEW==='party'?partyHtml():VIEW==='bag'?bagHtml():VIEW==='profile'?'<div class="body">'+profileHtml()+'</div>':VIEW==='settings'?'<div class="body">'+settingsHtml()+'</div>':VIEW==='online'?onlineHtml():rulesHtml())+'</div>';}
+  else{h+='<div class="scr">'+topbar()+(VIEW==='home'?lobbyHtml():VIEW==='map'?mapHtml():VIEW==='party'?partyHtml():VIEW==='bag'?bagHtml():VIEW==='profile'?'<div class="body">'+profileHtml()+'</div>':VIEW==='settings'?'<div class="body">'+settingsHtml()+'</div>':VIEW==='online'?onlineHtml():VIEW==='friends'?friendsHtml():rulesHtml())+'</div>';}
   if(VIEW==='battle'&&ROOM&&ROOM.waiting&&!MODAL)h+='<div class="pvpw">상대의 명령을 기다리는 중…</div>';
   h+=detailHtml()+modalHtml();if(HISTV!=null)h+=histModal();if(SOC.view&&VIEW==='profile'&&HISTV!=null)h+=friendView(SOC.view);
   if(GAL)h+=galHtml();
@@ -1560,7 +1560,7 @@ function fitBoards(){const f=document.querySelector('.field');if(!f)return;const
   else{const fw=f.clientWidth-12,fh=f.clientHeight-12-40;cw=Math.floor(Math.min((fw-gap*(SG.W-1))/SG.W,((fh/2)-gap*(SG.H-1))/SG.H*100/130));}
   f.style.setProperty('--cw',cw+'px');f.style.setProperty('--ch',Math.floor(cw*1.3)+'px');}
 function topbar(){const back=VIEW!=='home'?'<button class="back" data-nav="home">← 로비</button>':'';
-  const ttl={home:'',map:'원정',party:'파티 편성',bag:'가방',rules:'규칙',profile:'프로필',settings:'설정',online:'대전'}[VIEW];
+  const ttl={home:'',map:'원정',party:'파티 편성',bag:'가방',rules:'규칙',profile:'프로필',settings:'설정',online:'대전',friends:'친구'}[VIEW];
   return '<div class="topbar">'+back+'<span class="logo">'+(VIEW==='home'?'삼계전':esc(ttl))+'</span><div class="res"><span class="chip">승리 <b>'+SAVE.wins+'</b></span><span class="chip">관문 <b>'+SAVE.cleared+'</b>/15</span><span class="chip">장비 <b>'+SAVE.inv.length+'</b></span><button class="mini pchip" data-nav="profile" title="프로필">'+avaHtml()+'<b>'+esc(nickOf())+'</b></button><button class="mini" data-nav="settings" title="설정">⚙ 설정</button></div></div>';}
 function loginHtml(){const HAS_CLAUDE=(function(){try{return !!(window.claude&&typeof window.claude.use==='function')||/(^|\.)claude(usercontent)?\.(ai|com)$/.test(location.hostname);}catch(e){return false;}})();
   return '<div class="login"><div class="lgbg"></div><div class="lgart" role="img" aria-label="구미호·키츠네 술사·사일 궁수의 대결"></div><div class="lgwide"></div><div class="lgshade"></div><div class="lgbox"><div class="big"><span class="brush"></span><span class="lgg">三界戰</span><i class="seal" title="만든 사람 · 元"><b>元</b></i></div><div class="sub">SAMGYEJEON · HANNAH · 2026.10.18</div>'+
@@ -1602,6 +1602,7 @@ function lobbyHtml(){const r=partyRealm();
     pl('data-nav="map"','MELEE','원정','15관문 · '+(ready?'다음 관문: '+(STAGES[Math.min(SAVE.cleared,14)].name):'파티 6명 필요'),'main',!ready)+
     pl('data-go="free"','MEZ','연습 대전','파티 평균 레벨의 무작위 진영 · 경험치·숙련도 획득','',!ready)+
     pl('data-go="online"','ASSASSIN','대전','AI 또는 사람과 1:1 · 랜덤 매칭 · 친구'+((SOC&&Object.keys(SOC.invites||{}).length)?' · <b style="color:var(--gold)">초대 '+Object.keys(SOC.invites).length+'</b>':''),'',false)+
+    ((typeof fbAvail==='function'&&fbAvail())?pl('data-nav="friends"','BUFFER','친구','친구 목록 · 친구 추가 · 대전 신청'+((SOC&&Object.keys(SOC.reqs||{}).length)?' · <b style="color:var(--gold)">신청 '+Object.keys(SOC.reqs).length+'</b>':''),'',false):'')+
     pl('data-nav="party"','SUMMONER','파티 편성','60명 중 한 진영 6명 · 장비 장착',SAVE.party.length<6?'main':'')+
     pl('data-nav="bag"','charm','가방','보유 장비 '+SAVE.inv.length+'개')+
     pl('data-go="tut"','HEALER','튜토리얼','처음이라면 · 실제 전투를 따라 하며 규칙 익히기 (약 5분)',SAVE.tutDone?'':'tutp')+
@@ -2048,11 +2049,11 @@ var SOC={friends:{},reqs:{},invites:{},pub:{},offs:[],view:null,mm:null,addErr:'
 function pubSnap(){const R=SAVE.rec||{};return {name:NET.name||nickOf(),lv:avgLv(),realm:partyRealm(),av:(SAVE.prof&&SAVE.prof.avatar)||SAVE.party[0]||'',wins:SAVE.wins||0,cleared:SAVE.cleared||0,rec:{realm:R.realm||{},pvp:R.pvp||[0,0,0]},t:Date.now()};}
 function socStart(){if(!FBI||!NET.uid)return;socStop();
   FBI.update('public/'+NET.uid,pubSnap()).catch(()=>{});
-  SOC.offs.push(FBI.on('friends/'+NET.uid,v=>{SOC.friends=v||{};socLoadPub();if(VIEW==='online'||VIEW==='profile')render();}));
-  SOC.offs.push(FBI.on('friendReq/'+NET.uid,v=>{SOC.reqs=v||{};if(VIEW==='online')render();}));
+  SOC.offs.push(FBI.on('friends/'+NET.uid,v=>{SOC.friends=v||{};socLoadPub();if(VIEW==='online'||VIEW==='profile'||VIEW==='friends')render();}));
+  SOC.offs.push(FBI.on('friendReq/'+NET.uid,v=>{SOC.reqs=v||{};if(VIEW==='online'||VIEW==='friends'||VIEW==='home')render();}));
   SOC.offs.push(FBI.on('invites/'+NET.uid,v=>{const old=Object.keys(SOC.invites).length;SOC.invites=v||{};const n=Object.keys(SOC.invites).length;if(n>old)toast('대전 초대가 왔어요! 「온라인 대전」에서 확인하세요');if(VIEW==='online'||VIEW==='home')render();}));}
 function socStop(){for(const f of SOC.offs){try{f();}catch(e){}}SOC.offs=[];}
-async function socLoadPub(){for(const u in SOC.friends){try{SOC.pub[u]=await FBI.get('public/'+u);}catch(e){}}if(VIEW==='online'||VIEW==='profile')render();}
+async function socLoadPub(){for(const u in SOC.friends){try{SOC.pub[u]=await FBI.get('public/'+u);}catch(e){}}if(VIEW==='online'||VIEW==='profile'||VIEW==='friends')render();}
 async function socAdd(){const n=fbVal('frName');SOC.addErr='';if(!n){SOC.addErr='친구 아이디를 입력해 주세요';render();return;}
   try{const uid=await FBI.get('usernames/'+n.toLowerCase());if(!uid){SOC.addErr='그런 아이디가 없어요';render();return;}
     if(uid===NET.uid){SOC.addErr='내 아이디예요';render();return;}if(SOC.friends[uid]){SOC.addErr='이미 친구예요';render();return;}
@@ -2085,7 +2086,18 @@ function friendView(u){const p=SOC.pub[u]||{};const r=(p.rec&&p.rec.realm)||{};c
   h+='<div class="pstat"><div><b>'+(p.wins||0)+'</b><span>승리</span></div><div><b>'+(p.cleared||0)+'/15</b><span>원정 관문</span></div><div><b>'+pv[0]+'승 '+pv[1]+'패</b><span>대전</span></div></div>';
   h+='<h3>진영별 전적</h3><div class="rect">'+['CQ','DK','GL','MG'].map(k=>{const v=r[k]||[0,0,0];const n=v[0]+v[1]+v[2];const pct=n?Math.round(v[0]/n*100):0;return '<div class="recr"><span class="recn" style="color:var(--'+k.toLowerCase()+')">'+REALMS[k].name+'</span><span class="recb"><i style="width:'+pct+'%;background:var(--'+k.toLowerCase()+')"></i></span><span class="recv">'+(n?pct+'% · '+v[0]+'승 '+v[1]+'패':'기록 없음')+'</span></div>';}).join('')+'</div>';
   h+='<div style="display:flex;gap:8px;margin-top:14px"><button class="gold" style="flex:2" data-act="frInvite" data-u="'+u+'">대전 신청</button>'+(SOC.friends&&SOC.friends[u]?'<button style="flex:1" data-act="frRemove" data-u="'+u+'">'+(SOC.askRm===u?'정말 삭제':'친구 삭제')+'</button>':'<button style="flex:1" data-act="frAddU" data-u="'+u+'">친구 추가</button>')+'</div></div></div>';return h;}
-function profFriends(){if(!(ACCT&&ACCT.mode==='fb'))return '';const fl=Object.keys(SOC.friends||{});return '<h3>친구</h3>'+(fl.length?fl.map(friendRow).join(''):'<p class="small mut">아직 친구가 없어요. 「대전」 화면에서 친구 아이디로 추가할 수 있어요.</p>')+(SOC.view&&HISTV==null?friendView(SOC.view):'');}
+function profFriends(){if(!(ACCT&&ACCT.mode==='fb'))return '';const fl=Object.keys(SOC.friends||{});return '<h3>친구</h3>'+(fl.length?fl.map(friendRow).join(''):'<p class="small mut">아직 친구가 없어요. 「친구」 화면에서 친구 아이디로 추가할 수 있어요.</p>')+(SOC.view&&HISTV==null?friendView(SOC.view):'');}
+function friendsBox(){let h='';const rq=Object.entries(SOC.reqs||{});
+  if(rq.length)h+='<div class="small mut" style="margin-top:4px">받은 친구 신청</div>'+rq.map(([u,v])=>'<div class="frr"><span><b>'+esc(v.name)+'</b></span><span style="display:flex;gap:6px"><button class="mini gold" data-act="frOk" data-u="'+u+'">수락</button><button class="mini" data-act="frNo" data-u="'+u+'">거절</button></span></div>').join('');
+const fl=Object.keys(SOC.friends||{});h+=fl.length?fl.map(friendRow).join(''):'<p class="small mut">아직 친구가 없어요. 친구 아이디로 추가해 보세요.</p>';
+  h+='<div class="oljoin"><input id="frName" maxlength="12" placeholder="친구 아이디"><button data-act="frAdd">친구 추가</button></div>'+(SOC.addErr?'<div class="fbe">'+esc(SOC.addErr)+'</div>':'');
+  return h;}
+function friendsHtml(){let h='<div class="body"><div class="olw">';
+  if(!fbAvail()||!ACCT||ACCT.mode!=='fb')return h+'<h2>친구</h2><p class="mut">친구 기능은 로그인해야 쓸 수 있어요.</p>'+(fbAvail()?'<button class="gold" data-act="fbGoLogin">로그인하러 가기</button>':'')+'</div></div>';
+  const fl=Object.keys(SOC.friends||{});const on=fl.filter(u=>{const p=SOC.pub[u];return p&&p.t&&Date.now()-p.t<5*60e3;}).length;
+  h+='<h2>친구 <small class="mut">'+fl.length+'명 · 접속 중 '+on+'명</small></h2>';
+  h+='<div class="olbox">'+friendsBox()+'</div><p class="small mut">친구 이름을 누르면 프로필과 전적을 볼 수 있어요.</p>';
+  return h+'</div></div>'+(SOC.view?friendView(SOC.view):'');}
 function onlineHtml(){let h='<div class="body"><div class="olw">';
   const aiBtn='<button class="olbig" data-go="free"'+(SAVE.party.length===6?'':' disabled')+'>🤖 AI와 대전<small>파티 평균 레벨의 무작위 진영 · 경험치·숙련도 획득</small></button>';
   if(!fbAvail())return h+'<h2>대전</h2>'+aiBtn+'<p class="mut small">사람과의 대전은 온라인 서버가 연결되면 열려요.</p></div></div>';
@@ -2101,10 +2113,7 @@ function onlineHtml(){let h='<div class="body"><div class="olw">';
   if(iv.length)h+='<div class="olbox"><b>대전 초대</b>'+iv.map(([u,v])=>'<div class="frr"><span><b>'+esc(v.name)+'</b><small>님이 대전을 신청했어요</small></span><span style="display:flex;gap:6px"><button class="mini gold" data-act="ivOk" data-u="'+u+'">수락</button><button class="mini" data-act="ivNo" data-u="'+u+'">거절</button></span></div>').join('')+'</div>';
   h+='<div class="olmodes">'+aiBtn+'<button class="olbig gold" data-act="mmStart">⚔ 랜덤 매칭<small>비슷한 레벨의 사람과 대전</small></button></div>';
   h+='<div class="olbox"><b>코드로 대전</b><div class="oljoin"><input id="pvpCode" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="방 코드 6자리"><button data-act="pvpJoin">입장</button></div><button class="mini" data-act="pvpCreate" style="margin-top:6px">방 만들고 코드 받기</button></div>';
-  h+='<div class="olbox"><b>친구</b>';
-  if(rq.length)h+='<div class="small mut" style="margin-top:4px">받은 친구 신청</div>'+rq.map(([u,v])=>'<div class="frr"><span><b>'+esc(v.name)+'</b></span><span style="display:flex;gap:6px"><button class="mini gold" data-act="frOk" data-u="'+u+'">수락</button><button class="mini" data-act="frNo" data-u="'+u+'">거절</button></span></div>').join('');
-  const fl=Object.keys(SOC.friends||{});h+=fl.length?fl.map(friendRow).join(''):'<p class="small mut">아직 친구가 없어요. 친구 아이디로 추가해 보세요.</p>';
-  h+='<div class="oljoin"><input id="frName" maxlength="12" placeholder="친구 아이디"><button data-act="frAdd">친구 추가</button></div>'+(SOC.addErr?'<div class="fbe">'+esc(SOC.addErr)+'</div>':'')+'</div>';
+  h+='<div class="olbox"><b>친구</b> <button class="mini" data-nav="friends" style="float:right">친구 목록 →</button>'+friendsBox()+'</div>';
   return h+'<p class="small mut">양쪽이 명령을 낸 뒤 동시에 진행돼요.</p></div></div>'+(SOC.view?friendView(SOC.view):'');}
 
 
