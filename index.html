@@ -1838,16 +1838,17 @@ function previewCells(){const cs=curSkill();if(!cs||UI.sk.tx==null)return null;c
   if(sk.t==='enemy'){const t=SG.unitAt(B,'E',UI.sk.tx,UI.sk.ty);if(t&&t.alive){const r=SG.redirect(B,t);return {side,cells:[[r.x,r.y]],redir:r!==t?r:null};}}
   const sh=['self','ally','allyDead','enemyBuffer','emptyAlly'].includes(sk.t)?'single':sk.sh;return {side,cells:SG.shapeCells(sh,UI.sk.tx,UI.sk.ty)};}
 function hpCol(p){return p>50?'var(--hp)':p>25?'var(--hpbad)':'var(--hplow)';}
-function snapPre(){const m={};if(B)for(const u of B.units)m[u.uid]={hp:u.hp,alive:u.alive};return m;}
+function snapPre(){const m={};if(B)for(const u of B.units){let st;try{st=JSON.parse(JSON.stringify(u.st||{}));}catch(e){st=u.st;}m[u.uid]={hp:u.hp,alive:u.alive,st,stealth:!!u.stealth};}return m;}
 function unitHtml(u){const c=CH[u.cid];const PV=UI.busy&&UI.pre?UI.pre[u.uid]:null,PEND=UI.busy&&UI.pre&&!PV;const HPv=PV?PV.hp:u.hp,ALv=PV?PV.alive:u.alive;
   const dim=UI.mode==='target'&&!UI.busy&&!targetable(u)&&!(UI.sk&&UI.sk.uid===u.uid);
-  if(u.side==='E'&&u.stealth)return '<div class="u E'+(dim?' dim':'')+(PEND?' pending':'')+'" data-uid="'+u.uid+'" style="--rc:#4a3d5a">'+P('back')+'<div class="nm">?</div></div>';
-  const pct=Math.max(0,HPv/u.maxHp*100);const st=u.st,tg=[];
+  if(u.side==='E'&&(PV?PV.stealth:u.stealth))return '<div class="u E'+(dim?' dim':'')+(PEND?' pending':'')+'" data-uid="'+u.uid+'" style="--rc:#4a3d5a">'+P('back')+'<div class="nm">?</div></div>';
+  const pct=Math.max(0,HPv/u.maxHp*100);const st=(PV&&PV.st)||u.st,tg=[];
   if(st.mez)tg.push(__t('<span class="mz">메')+st.mez+'</span>');if(st.mezImm)tg.push(__t('<span class="sk">면</span>'));if(st.sick)tg.push(__t('<span class="sk">후</span>'));
   if(st.shield)tg.push(__t('<span class="sh">막</span>'));if(st.atkDown)tg.push(__t('<span class="db">공↓</span>'));if(st.defDown)tg.push(__t('<span class="db">방↓</span>'));if(st.resDown)tg.push(__t('<span class="db">저↓</span>'));if(st.vuln)tg.push(__t('<span class="db">취약</span>'));if(st.mark)tg.push(__t('<span class="mk">◎표식</span>'));if(st.dots&&st.dots.length)tg.push(__t('<span class="db">독</span>'));
-  if(c.aura&&SG.auraActive(u))tg.push(__t('<span class="au">오</span>'));if(u.stealth)tg.push(__t('<span>은</span>'));
+  const withSt=f=>{if(!PV)return f(u);const o=u.st,oa=u.alive;u.st=st;u.alive=ALv;try{return f(u);}finally{u.st=o;u.alive=oa;}};const AGG=withSt(SG.aggroOf),AUR=c.aura&&withSt(SG.auraActive);
+  if(AUR)tg.push(__t('<span class="au">오</span>'));if(PV?PV.stealth:u.stealth)tg.push(__t('<span>은</span>'));
   const ready=u.side==='P'&&SG.canAct(B,u)&&!UI.busy;const pick=ready&&!UI.mode&&!UI.sheet&&!(UI.sk&&UI.sk.tx!=null)&&!UI.cmd&&SG.legalActions(B,'P').some(a=>a.u===u);
-  return '<div class="u '+u.side+' realm-'+c.realm+(ALv?'':' dead')+(PEND?' pending':'')+(u.spirit?' spirit':'')+(ready?' ready':'')+(pick?' pickme':'')+(SG.aggroOf(u)?' aggro':'')+(st.mez?' mezd':'')+(st.mark?' marked':'')+((st.atkDown||st.defDown||st.resDown||st.vuln||(st.dots&&st.dots.length))?' debuffed':'')+((st.shield||st.defUp||st.resUp||st.ward||st.atkUp||st.critUp)?' buffed':'')+(UI.caster===u.uid||UI.info===u.uid?' focus':'')+(dim?' dim':'')+'" data-uid="'+u.uid+'">'+P(u.cid)+(pick?'<i class="pkb">⚔</i>':'')+
+  return '<div class="u '+u.side+' realm-'+c.realm+(ALv?'':' dead')+(PEND?' pending':'')+(u.spirit?' spirit':'')+(ready?' ready':'')+(pick?' pickme':'')+(AGG?' aggro':'')+(st.mez?' mezd':'')+(st.mark?' marked':'')+((st.atkDown||st.defDown||st.resDown||st.vuln||(st.dots&&st.dots.length))?' debuffed':'')+((st.shield||st.defUp||st.resUp||st.ward||st.atkUp||st.critUp)?' buffed':'')+(UI.caster===u.uid||UI.info===u.uid?' focus':'')+(dim?' dim':'')+'" data-uid="'+u.uid+'">'+P(u.cid)+(pick?'<i class="pkb">⚔</i>':'')+
     compBadge(u)+'<div class="tags">'+tg.join('')+'</div><div class="nm">'+esc(c.name)+'</div><div class="hp"><i style="width:'+pct+'%;background:'+hpCol(pct)+'"></i></div></div>';}
 const AURC={atk:['#ff9a4a',__t('공격')],def:['#6ab0ff',__t('방어')],crit:['#ffe05a',__t('치명')],mezRes:['#8fe39b',__t('메즈저항')]};
 function compBadge(u){const k=SG.compOf(B,u);if(!k)return '';const pc=Math.max(0,k.hp/k.maxHp*100);return '<div class="compb" data-uid="'+k.uid+'" title="'+esc(CH[k.cid].name)+' '+k.hp+'/'+k.maxHp+'">'+P(k.cid)+'<i style="width:'+pc+'%"></i></div>';}
@@ -1869,7 +1870,7 @@ function gridHtml(side){let h='';const pv=previewCells();
     if(!u&&side==='P'&&UI.deploy&&UI.deploy.sp&&UI.deploy.sx===x&&UI.deploy.sy===y)inner='<div class="u P ghostdep realm-GL">'+P(UI.deploy.sp)+'<div class="nm">'+esc(CH[UI.deploy.sp].name)+'</div></div>';
     if(!u&&side==='P'&&UI.deploy&&UI.deploy.x===x&&UI.deploy.y===y)inner='<div class="u P ghostdep realm-'+CH[UI.deploy.cid].realm+'">'+P(UI.deploy.cid)+__t('<div class="nm">등장</div></div>');
     h+='<div class="'+cls+'" style="'+pos+'" data-cell="'+side+','+x+','+y+'" role="button" tabindex="0" aria-label="'+(side==='P'?__t('아군'):__t('적'))+' '+(x+1)+__t('열 ')+(y+1)+__t('행">')+inner+'</div>';}
-  h+=auraBoxes(side);return h;}
+  if(!(UI.busy&&UI.pre))h+=auraBoxes(side);return h;}
 function battleHtml(){
   const legal=UI.busy?[]:SG.legalActions(B,'P');
   const wide=window.innerWidth>=1000&&window.innerWidth>window.innerHeight*1.2;
@@ -2000,7 +2001,9 @@ function preRepaint(uid){const u=B&&B.units.find(k=>k.uid===uid);const el=fxEl(u
 function preApply(f){if(!UI.pre||f.uid==null)return;const u=B.units.find(k=>k.uid===f.uid);if(!u)return;let p=UI.pre[f.uid];
   if(f.k==='in'){if(!p)UI.pre[f.uid]={hp:u.maxHp,alive:true};preRepaint(f.uid);return;}
   if(!p)return;
-  if((f.k==='dmg'||f.k==='dot')&&f.v)p.hp=Math.max(1,p.hp-f.v);else if(f.k==='heal')p.hp=Math.min(u.maxHp,p.hp+f.v);else if(f.k==='rev'){p.alive=true;p.hp=Math.max(p.hp,1);}else return;
+  if(f.k==='cast'){if(p.stealth){p.stealth=false;preRepaint(f.uid);}return;}
+  if((f.k==='dmg'||f.k==='dot')&&f.v)p.hp=Math.max(1,p.hp-f.v);else if(f.k==='heal')p.hp=Math.min(u.maxHp,p.hp+f.v);else if(f.k==='rev'){p.alive=true;p.hp=Math.max(p.hp,1);}else if(!['deb','mez','shield','dispel'].includes(f.k))return;
+  p.st=u.st;
   preRepaint(f.uid);}
 function fxAt(el,cls,html,ms){if(!el)return;const r=el.getBoundingClientRect();const w=document.createElement('div');w.className='kfx '+cls;w.style.cssText='left:'+(r.left+r.width/2)+'px;top:'+(r.top+r.height/2)+'px;--s:'+Math.max(r.width,r.height)+'px;--w:'+r.width+'px;--h:'+r.height+'px';w.innerHTML=html;document.body.appendChild(w);setTimeout(()=>w.remove(),ms||900);}
 function fxKind(el,k,crit){if(!el)return;
@@ -2023,7 +2026,7 @@ async function play(fx,done){FXF=SAVE.fxFast?2.5:1;
     const pre=fx.filter(f=>f.k==='in'&&f.src==null);pre.forEach(f=>used.add(f));
     if(pre.length){pre.forEach(f=>{preApply(f);fxOne(f);});await fxWait(450);}
     for(const c of casts){used.add(c);const g=fx.filter(f=>!used.has(f)&&f.src===c.uid);g.forEach(f=>used.add(f));
-      await fxCut(c);const a=fxEl(c.uid);fxOne(c);
+      await fxCut(c);preApply(c);const a=fxEl(c.uid);fxOne(c);
       if(a){const u=B.units.find(k=>k.uid===c.uid);a.classList.remove('lunge','lungeE');void a.offsetWidth;a.classList.add(u&&u.side==='E'?'lungeE':'lunge');}
       g.filter(f=>f.k==='area').forEach(fxOne);
       await fxWait(260);
