@@ -1729,6 +1729,7 @@ function settingsHtml(){const seg=(act,cur,a,b)=>'<div class="seg"><button class
   __t('<div class="setr"><span><b>효과음</b><small>버튼·타격 소리</small></span>')+seg('setSound',SFX.on,__t('켬'),__t('끔'))+'</div>'+
   __t('<div class="setr"><span><b>캐릭터 그림</b><small>일러스트 또는 가벼운 도형</small></span>')+seg('setDoodle',!SAVE.doodle,__t('일러스트'),__t('도형'))+'</div>'+
   __t('<div class="setr"><span><b>튜토리얼</b><small>전투 방법을 처음부터 다시 봅니다</small></span><button class="mini" data-go="tut">다시 보기</button></div>')+
+  '<div class="setr"><span><b>문의 · 회사 홈</b><small>SAGATON Studio 홈페이지 · 제휴·문의 안내</small></span><a class="mini" href="studio/" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">회사 홈 ↗</a></div>'+
   __t('<div class="setr"><span><b>계정</b><small>')+(ACCT&&ACCT.mode==='claude'?__t('Claude 계정으로 로그인됨 · 기록이 계정에 저장됩니다'):__t('게스트 · 기록이 이 기기에만 저장됩니다'))+__t('</small></span><button class="mini" data-act="logout">로그아웃</button></div>')+
   __t('<div class="setr danger"><span><b>데이터 초기화</b><small>승리·관문·장비·숙련도를 모두 지웁니다. 되돌릴 수 없어요</small></span><button class="mini" data-act="wipe">')+(UI_WIPE?__t('정말 지우기'):__t('초기화'))+'</button></div>'+
   (CLOUD.err?'<div class="small" style="color:var(--hpbad)">'+esc(CLOUD.err)+'</div>':'')+'</div>';}
