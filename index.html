@@ -880,7 +880,7 @@ const AOEF={area:0.75,row:0.8,row2:0.9,col2:0.9,col:0.9};
 function aoeF(sk){return (['dmg','dot','mez','debuff','dispel'].includes(sk.k)||sk.k==='heal'||sk.k==='shield')?(AOEF[sk.sh]||1):1;}
 function mezDur(sk){return Math.max(1,sk.tn-(sk.sh==='area'||sk.sh==='row'?1:0));}
 function skBonus(u,k){const g=SKG[k];return g&&u.sb?(u.sb[g]||0):0;}
-const mlMult=l=>1+0.08*(l-1)+(l>=5?0.1:0);
+const mlMult=l=>l<=5?1+0.08*(l-1)+(l>=5?0.1:0):1.42+0.06*(Math.min(l,10)-5)+(l>=10?0.1:0);
 function auraActive(u){return u.alive&&CH[u.cid].aura&&!u.auraDead&&!(u.st.sick>0);}
 function box(src){return [src.x<W/2?src.x:src.x-1,src.y<H/2?src.y:src.y-1];}
 function inBox(src,u){const [ax,ay]=box(src);return u.x>=ax&&u.x<=ax+1&&u.y>=ay&&u.y<=ay+1;}
@@ -1429,7 +1429,7 @@ G.ART={sprite,portrait,icon,A};
 'use strict';
 const SG=window.SG,ART=window.ART,CH=SG.CH,REALMS=SG.REALMS,CLS=SG.CLS;
 const KEY='samgyejeon_v1';
-const TH=[0,4,10,20,35];
+const TH=[0,4,10,20,35,55,80,110,150,200];
 const lvlOf=e=>{let l=0;for(const t of TH)if(e>=t)l++;return l;};
 function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r);}catch(e){}return null;}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(SAVE));}catch(e){}if(typeof cloudPush==='function')cloudPush();if(typeof fbPush==='function')fbPush();}
@@ -1850,7 +1850,7 @@ function detailHtml(){if(!DETAIL)return '';const id=DETAIL.id,c=CH[id],cl=CLS[c.
   h+='<div class="stats"><div><b>'+hp+__t('</b><span>체력</span></div><div><b>')+atk+__t('</b><span>공격력</span></div><div><b>')+def+__t('</b><span>방어력</span></div><div><b>')+Math.round(crit*100)+__t('%</b><span>치명타</span></div></div>')+erHtml(st0.er)+((gb.dr||SG.ELS.some(e=>gb['e_'+e])||gb.ls||gb.thorns||gb.regen||gb.res||gb.skDmg||gb.skHeal||gb.skMez||gb.skDeb)?'<div class="small" style="color:var(--gold)">'+['skDmg','skHeal','skMez','skDeb','res','dr','ls','thorns','regen',...SG.ELS.map(e=>'e_'+e)].filter(k=>gb[k]).map(k=>STN[k][0]+' '+STN[k][1](+gb[k].toFixed(3))).join(' · ')+'</div>':'');
   const pt=SG.pasTxt(c);if(pt.length)h+='<ul class="pas">'+pt.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
   c.skills.forEach((sk,i)=>{const e=ms[i]||0,l=lvlOf(e),nx=TH[l]||null;
-    h+='<div class="sk"><div class="t"><span>'+esc(sk.n)+' <span class="kind '+sk.k+'">'+KN[sk.k]+__t('</span></span><span class="mstar">숙련 ')+l+(l>=5?__t(' 극의'):'')+(skg(gb,sk.k)?__t(' · 장비 +')+skg(gb,sk.k):'')+' ×'+(SG.mlMult(l)*(1+0.06*skg(gb,sk.k))).toFixed(2)+'</span></div><div class="small mut">'+esc(SG.sdesc(sk))+'</div><div class="bar"><i style="width:'+(nx?Math.round((e-TH[l-1])/(nx-TH[l-1])*100):100)+'%"></i></div></div>';});
+    h+='<div class="sk"><div class="t"><span>'+esc(sk.n)+' <span class="kind '+sk.k+'">'+KN[sk.k]+__t('</span></span><span class="mstar">숙련 ')+l+'/10'+(l>=10?__t(' 극의'):'')+(skg(gb,sk.k)?__t(' · 장비 +')+skg(gb,sk.k):'')+' ×'+(SG.mlMult(l)*(1+0.06*skg(gb,sk.k))).toFixed(2)+'</span></div><div class="small mut">'+esc(SG.sdesc(sk))+'</div><div class="bar"><i style="width:'+(nx?Math.round((e-TH[l-1])/(nx-TH[l-1])*100):100)+'%"></i></div></div>';});
   if(DETAIL.codex)return h+'</div></div></div></div>';
   h+=__t('<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap"><h3 style="margin:0">장비 · 무기 ')+__t(WOF[id])+' · '+MAT[MATOF[c.cls]]+__t(' 갑옷</h3><span style="display:flex;gap:6px"><button class="mini" data-act="unequipOne" ')+(Object.keys(SAVE.equip[id]||{}).length?'':'disabled')+__t('>장비 모두 해제</button><button class="mini gold" data-act="autoOne">자동 장착</button></span></div><div class="eqs">');
   for(const [sl,sn] of SLOTS){if(sl==='offhand'&&c.cls!=='TANK')continue;const iid=(SAVE.equip[id]||{})[sl];const it=SAVE.inv.find(i=>i.id===iid);const t=it?(it.slot==='artifact'?'a':it.rar):'';
