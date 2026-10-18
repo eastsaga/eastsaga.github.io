@@ -1523,7 +1523,7 @@ const BGM=(()=>{let ctx=null,master=null,timer=null,cur=null,next=0,step=0;
     if(S.drum)while(tr.drum.t<ahead){const k=S.drum[tr.drum.i%S.drum.length];if(k!=='.')drum(k,tr.drum.t);tr.drum.t+=bt/4;tr.drum.i++;}}
   function stop(){if(timer){clearInterval(timer);timer=null;}}
   // 파일 음원(진영별 전투곡 등). 없으면 합성음으로 대체
-  const FILES={lobby:'bgm_home.mp3',battle_CQ:'bgm_cq.mp3',battle_GL:'bgm_gl.mp3?v=2',battle_DK:'bgm_dk.mp3?v=2'};let au=null,auName=null;
+  const FILES={lobby:'bgm_home.mp3',battle_CQ:'bgm_cq.mp3',battle_GL:'bgm_gl.mp3?v=3',battle_DK:'bgm_dk.mp3?v=2'};let au=null,auName=null;
   function stopFile(){if(au){try{au.pause();}catch(e){}}auName=null;}
   function playFile(name){const src=FILES[name];if(!au){au=new Audio();au.loop=true;au.preload='auto';au.volume=0.55;}
     if(auName===name&&!au.paused)return true;if(auName===name&&au.paused&&au.src&&au.src.indexOf(src)>=0){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{window.__sgUnlocked=false;});return true;}auName=name;try{au.src=src;au.currentTime=0;if(name==='lobby'){const sk=()=>{try{au.currentTime=6;}catch(e){}au.removeEventListener('loadedmetadata',sk);};if(au.readyState>=1)sk();else au.addEventListener('loadedmetadata',sk);}const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{auName=null;cur=null;window.__sgUnlocked=false;});}catch(e){return false;}return true;}
