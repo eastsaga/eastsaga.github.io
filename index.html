@@ -493,7 +493,7 @@ const W=4,H=2;
 const DMG=2.4; // 전체 피해 배율
 const REALMS={
   CQ:{id:'CQ',name:'청구',han:'靑丘',motif:'한국 설화',trait:'어울림',traitD:'인접 아군 1명당 공격력 +4%·받는 회복량 +7%·방어력 +4·원소 저항 +3%. 뭉칠수록 강해진다.'},
-  DK:{id:'DK',name:'도코요',han:'常世',motif:'일본 설화',trait:'그림자의 날',traitD:'모든 캐릭터 치명타율 +8%. 은신 암살자 보유.'},
+  DK:{id:'DK',name:'요로즈',han:'萬',motif:'일본 설화',trait:'그림자의 날',traitD:'모든 캐릭터 치명타율 +8%. 은신 암살자 보유.'},
   GL:{id:'GL',name:'곤륜',han:'崑崙',motif:'중국 설화',trait:'오행 순환',traitD:'모든 캐릭터 방어력 +15·체력 +70·술법 원소 저항 +5%, 곤륜이 거는 지속 피해는 1턴 더 지속. 빈 칸에 영수를 소환.'},
   MG:{id:'MG',name:'무계',han:'無界',motif:'전설 · 세 땅 바깥',trait:'야성',traitD:'아군이 하나 쓰러질 때마다 남은 아군 공격력 +8%. 하늘 기둥이 부러진 틈에서 기어 나온 전설의 존재들.'}
 };
@@ -535,7 +535,7 @@ C('cq_jangseung','장승','장승','CQ','BUFFER',{hp:100,def:25},{aura:{st:'mezR
 C('cq_buk','북잡이','북잡','CQ','BUFFER',{},{aura:{st:'atk',v:0.2},flav:'둥둥 북소리에 피가 끓는다.'},[S('휘모리 장단','buff','allyAll','all',{st:'atkUp',v:0.15,dur:3}),S('깨우는 북','purge','self','single',{boxAlly:1})]),
 C('cq_toemasa','퇴마사','퇴마','CQ','DISPEL',{},{pas:{colAuraBlock:1},flav:'부적이 맞은편 줄의 술법을 끊는다.'},[S('축귀진','dispel','enemyCell','area',{c:1.0}),S('대축귀','debuff','enemyAll','all',{deb:{st:'vuln',v:0.15,n:2},strip:1})]),
 C('cq_seonnyeo','몽유 선녀','선녀','CQ','MEZ',{},{pas:{dreamWake:0.25},flav:'날개옷 자락에 잠이 묻어난다. 깨어난 자는 꿈결에 힘이 빠져 있다.'},[S('자장가','mez','enemyCell','area',{n:3,c:0.4}),S('날개옷','mez','enemy','single',{n:2,c:0.9})]),
-// ── 도코요: 흩어짐·치명·표식·딜러형 무녀 ──
+// ── 요로즈: 흩어짐·치명·표식·딜러형 무녀 ──
 C('dk_oni','오니 문지기','오니','DK','TANK',{},{pas:{aggro:1,lastStand:1},flav:'궁지에 몰릴수록 더 사나워진다.'},[S('쇠몽둥이','dmg','enemy','single',{c:1.1}),S('귀신 포효','debuff','enemyCell','area',{deb:{st:'atk',v:0.2,n:2}})]),
 C('dk_kappa','갓파','갓파','DK','MELEE',{hp:100,def:20,atk:-20},{pas:{regen:14},flav:'물귀신. 끌어들여 생기를 앗는다.'},[S('물귀신','dmg','enemy','single',{c:1.4,drain:0.4}),S('접시물','guard','self','single')]),
 C('dk_ronin','그림자 낭인','낭인','DK','MELEE',{crit:0.05},{pas:{critDmg:0.5,iai:1},flav:'칼집에서 뽑는 순간 끝난다.'},[S('발도','dmg','enemy','single',{c:1.75,critB:0.2}),S('연베기','dmg','enemyCell','col2',{c:1.0})]),
@@ -1602,7 +1602,7 @@ let UI_WIPE=false;
 const LANGS=[['ko',/*nt*/'한국어'],['en','English'],['zh','中文'],['ja','日本語'],['es','Español']];
 function langSel(){if(!window.I18N)return '';const L=window.SG_LANG||'ko';return LANGS.map(([c,n])=>'<button class="mini'+(L===c?' on':'')+'" data-act="setLang" data-v="'+c+'">'+n+'</button>').join('');}
 function lobbyHtml(){const r=partyRealm();
-  let hero='<div class="hero'+(r?' realm-'+r:'')+'"><div class="ttl"><span class="htw"><span class="brush"></span><span class="lgg">三界戰</span><i class="seal"><b>元</b></i></span><small>청구 · 도코요 · 곤륜 — 세 세계의 전쟁</small></div>';
+  let hero='<div class="hero'+(r?' realm-'+r:'')+'"><div class="ttl"><span class="htw"><span class="brush"></span><span class="lgg">三界戰</span><i class="seal"><b>元</b></i></span><small>청구 · 요로즈 · 곤륜 — 세 세계의 전쟁</small></div>';
   if(SAVE.party.length){hero+='<div class="lineup">'+SAVE.party.map(c=>cardHtml(c,{lv:lvOf(c)})).join('')+'</div><div class="cap">'+REALMS[r].name+' 원정대 · 진영 특성 「'+REALMS[r].trait+'」</div>';}
   else hero+='<div class="lineup">'+['cq_hwarang','dk_onmyoji','gl_noejeong'].map(c=>cardHtml(c)).join('')+'</div><div class="cap">먼저 진영 하나를 골라 6명의 파티를 꾸리세요</div>';
   hero+='</div>';
@@ -1656,8 +1656,8 @@ function rulesHtml(){return '<div class="body"><p class="small" style="margin:0 
  '<li><b>어그로</b>: 탱커 칸을 포함한 판 중앙 쪽 2×2 안의 아군을 노린 단일 공격은 탱커가 대신 맞습니다. 범위 공격은 무시. 메즈돼도 유지.</li>'+
  '<li><b>오라 버프</b>: 버퍼 칸을 포함한 판 중앙 쪽 2×2 안에서만, 무제한 중첩. 버퍼가 죽거나 해제당하면 영구 소멸.</li>'+
  '<li><b>메즈</b>: 맞으면 풀리고, 풀린 뒤 2턴 면역. <b>무방비</b>: 메즈된 적을 때린 첫 공격은 피해 +50%. 메즈 저항 오라는 지속 1턴 감소.</li>'+'<li><b>해제</b>: 적 1명(일부 해제사는 피해도 줌)의 오라를 영구히 지우고 보호막을 벗기며 2턴간 받는 피해 +25%.</li>'+'<li><b>맞은편 열</b>: 아군과 적은 같은 열(x)끼리 마주 봅니다. 일부 패시브(견제 사격·독안개·약화·오라 차단)는 맞은편 같은 열의 적에게 작동합니다.</li>'+
- '<li><b>회복 직업은 진영마다 다릅니다</b>: 청구 무당(회복+부활), 도코요 전투 무녀(공격하며 회복+부활), 곤륜 단약사(회복+독·약화, 부활 없음 — 대신 방술사가 강시로 부활). 지원 직업 대부분은 행동하지 않아도 작동하는 패시브가 있습니다.</li>'+
- '<li><b>피해</b> = 공격력 × 계수 × 2.4 × 100 ÷ (100 + 방어력*) × (1 − 그 원소 저항). *방어력(갑옷)은 물리(금)만 막고, 술법(흙·물·불·바람·전기)은 원소 저항으로만 막습니다. 치명타 1.5배.</li><li><b>버퍼</b>: 곁(2×2) 아군을 강화하는 오라가 늘 켜져 있고, 액티브로 아군 전체를 3턴간 강화(북잡이 공격 +15%)하거나 직접 싸웁니다.</li><li><b>퍼지</b>: 일부 캐릭터(진영별 2명)의 비장의 수. 전투당 1회, <b>메즈 중에도</b> 쓸 수 있고 자신의 메즈·약화·지속 피해를 지운 뒤 2턴 메즈 면역.</li><li><b>원소</b>: 금(金·물리)·흙(土)·물(水)·불(火)·바람(風)·전기(雷). 모든 공격 스킬·지속 피해는 캐릭터의 원소를 띱니다(칼·활·주먹은 금). 물리(금) 피해는 ×1.15. 저항은 기본 금 0%·술법 원소 15%에 진영 강점(청구 흙·바람, 도코요 물·전기, 곤륜 물·바람·금), 자기 원소 +10%, 탱커 +10%가 붙고, 장비로 올려 <b>최대 50%</b>까지.</li>'+
+ '<li><b>회복 직업은 진영마다 다릅니다</b>: 청구 무당(회복+부활), 요로즈 전투 무녀(공격하며 회복+부활), 곤륜 단약사(회복+독·약화, 부활 없음 — 대신 방술사가 강시로 부활). 지원 직업 대부분은 행동하지 않아도 작동하는 패시브가 있습니다.</li>'+
+ '<li><b>피해</b> = 공격력 × 계수 × 2.4 × 100 ÷ (100 + 방어력*) × (1 − 그 원소 저항). *방어력(갑옷)은 물리(금)만 막고, 술법(흙·물·불·바람·전기)은 원소 저항으로만 막습니다. 치명타 1.5배.</li><li><b>버퍼</b>: 곁(2×2) 아군을 강화하는 오라가 늘 켜져 있고, 액티브로 아군 전체를 3턴간 강화(북잡이 공격 +15%)하거나 직접 싸웁니다.</li><li><b>퍼지</b>: 일부 캐릭터(진영별 2명)의 비장의 수. 전투당 1회, <b>메즈 중에도</b> 쓸 수 있고 자신의 메즈·약화·지속 피해를 지운 뒤 2턴 메즈 면역.</li><li><b>원소</b>: 금(金·물리)·흙(土)·물(水)·불(火)·바람(風)·전기(雷). 모든 공격 스킬·지속 피해는 캐릭터의 원소를 띱니다(칼·활·주먹은 금). 물리(금) 피해는 ×1.15. 저항은 기본 금 0%·술법 원소 15%에 진영 강점(청구 흙·바람, 요로즈 물·전기, 곤륜 물·바람·금), 자기 원소 +10%, 탱커 +10%가 붙고, 장비로 올려 <b>최대 50%</b>까지.</li>'+
  '<li><b>승리</b>: 상대 카드 전멸(손패 포함). 40턴이 지나면 남은 체력 비율로 판정.</li>'+
  '<li><b>레벨</b>: 전투가 끝나면 파티원 6명이 경험치를 받습니다(최대 Lv 50, 레벨당 체력·공격 +1.5%). 관문마다 적 레벨이 있습니다.</li>'+'<li><b>장비 13부위</b>: 무기·방패(탱커)·투구·갑옷·어깨·장갑·하의·신발·팔찌·귀걸이·목걸이·허리띠·아티팩트. 무기 종류는 캐릭터마다 정해져 있고, 갑옷 재질은 탱커·근접 사슬 / 원거리·암살 가죽 / 술법·지원 헝겊. 등급(일반·희귀·영웅·전설)이 높을수록 무작위 추가 옵션이 붙습니다. 장비 레벨 −3부터 착용 가능.</li>'+'<li><b>장비 스탯</b>: 체력·공격·방어·치명타·<b>원소 저항</b>(방어구·허리띠마다 1개)·<b>원소 피해</b>(무기는 자기 원소)·<b>상태 저항</b>(받는 약화 감소, 20% 이상이면 메즈 1턴 감소)·피해 감소·흡혈, 그리고 <b>스킬 보정</b>(공격·회복/보호·메즈·약화/해제 계열 +1당 위력 6%, 메즈 +3이면 지속 +1턴). 무기는 그 캐릭터 주력 계열 보정이 등급만큼 붙습니다.</li>'+'<li><b>아티팩트</b>: 가시·재생·흡혈·피해 감소 같은 특수 효과가 있는 유물. 보스 관문에서 잘 나옵니다.</li>'+'<li><b>숙련도</b>: 쓴 스킬의 숙련도가 오릅니다(최대 5). 진행은 이 기기에 저장됩니다.</li></ol>'+
  '<p class="small mut">카드 표시 — 노란 테두리: 이번 턴 행동 가능 · 금색 안쪽 테두리: 어그로 · 메: 메즈 · 면: 메즈 면역 · 후: 부활 후유증 · 막: 보호막 · 약: 디버프 · 독: 지속 피해 · 오: 오라 작동 · 은: 은신</p><h3 id="gloss" style="margin-top:16px">용어 사전</h3><dl class="gloss">'+GLOSS.map(g=>'<dt>'+g[0]+'</dt><dd>'+g[1]+'</dd>').join('')+'</dl></div>';}
@@ -1723,7 +1723,7 @@ function guardBack(){try{history.pushState({sg:1},'');}catch(e){}}
 window.addEventListener('popstate',()=>{if(IGNPOP){IGNPOP=false;return;}if(GAL){GAL=null;render();return;}if(VIEW==='battle'&&B&&!B.over){guardBack();UI.askRetreat=true;render();}});
 function startBattle(mode){
   if(mode==='tut'){B=SG.newBattle({pParty:TUT_P.slice(),eParty:TUT_E.slice(),pProf:SG.defProf(1),eProf:SG.defProf(0.7)});
-    BCTX={mode:'tut',eRealm:'DK',pRealm:'CQ',noise:0.7,name:'튜토리얼 · 청구 vs 도코요',scale:0.7,elv:1,boss:false,logs:[]};UI={};TUT={i:0};VIEW='battle';guardBack();render();return;}
+    BCTX={mode:'tut',eRealm:'DK',pRealm:'CQ',noise:0.7,name:'튜토리얼 · 청구 vs 요로즈',scale:0.7,elv:1,boss:false,logs:[]};UI={};TUT={i:0};VIEW='battle';guardBack();render();return;}
   let eRealm,scale,noise,name,party;
   let elv;if(mode==='free'){eRealm=['CQ','DK','GL','MG'][Math.floor(Math.random()*4)];elv=avgLv();scale=escale(elv,false);noise=0.3;name='연습 대전 · 적 Lv '+elv;party=SG.randomParty(eRealm);}
   else{const st=STAGES[mode];eRealm=st.realm;elv=st.lvl;scale=st.scale;noise=st.noise;name=(mode+1)+'. '+st.name+' · 적 Lv '+elv;party=SG.randomParty(eRealm);if(!party.includes(st.rep))party[5]=st.rep;}
