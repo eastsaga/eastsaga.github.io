@@ -843,7 +843,7 @@ function pasTxt(c){const r=[];const p=c.pas||{};
 // ── 상태 ──
 function newBattle(o){
   // o:{pParty:[cid], eParty:[cid], pProf, eProf}
-  return {turn:1,nid:1,units:[],hand:{P:o.pParty.slice(),E:o.eParty.slice()},prof:{P:o.pProf,E:o.eProf},log:[],fx:[],over:false,winner:null,maxTurn:40};
+  return {turn:1,nid:1,units:[],hand:{P:o.pParty.slice(),E:o.eParty.slice()},prof:{P:o.pProf,E:o.eProf},log:[],fx:[],over:false,winner:null,maxTurn:50};
 }
 function defProf(scale){return {scale:scale||1,bonus:()=>({hp:0,atk:0,def:0,crit:0}),ml:()=>[1,1,1],lvl:()=>1};}
 const opp=s=>s==='P'?'E':'P';
@@ -1698,18 +1698,18 @@ const BGM=(()=>{let ctx=null,master=null,timer=null,cur=null,next=0,step=0;
   function stopFile(){if(au){try{au.pause();}catch(e){}}auName=null;}
   function playFile(name){const src=FILES[name];if(!au){au=new Audio();au.loop=true;au.preload='auto';au.volume=0.55;}
     if(auName===name&&!au.paused)return true;if(auName===name&&au.paused&&au.src&&au.src.indexOf(src)>=0){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{window.__sgUnlocked=false;});return true;}auName=name;try{au.src=src;au.currentTime=0;if(name==='lobby'){const sk=()=>{try{au.currentTime=6;}catch(e){}au.removeEventListener('loadedmetadata',sk);};if(au.readyState>=1)sk();else au.addEventListener('loadedmetadata',sk);}const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{auName=null;cur=null;window.__sgUnlocked=false;});}catch(e){return false;}return true;}
-  return {set(name){if(!on()){stop();stopFile();cur=null;return;}
+  return {set(name){if(!on()){stop();stopFile();cur=null;return;}if(document.hidden){BGM_HID=1;return;}
       if(FILES[name]&&SAVE.musicSrc!=='synth'){if(cur===name&&auName===name&&au&&!au.paused)return;stop();cur=name;if(playFile(name))return;}
       stopFile();const base=name.startsWith('battle')?'battle':name;if(!ac())return;if(base===cur&&timer)return;cur=base;reset();stop();timer=setInterval(tick,60);tick();},
     reload(){stop();stopFile();cur=null;},
     audio(){return au;},
     kick(){if(!on()||SAVE.musicSrc==='synth')return;try{if(au&&auName&&au.paused&&!au._bg){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}},
-    pauseAll(){try{if(au&&!au.paused){au.pause();au._bg=1;}}catch(e){}try{if(ctx&&ctx.state==='running')ctx.suspend();}catch(e){}},
-    resumeAll(){if(!on())return;try{if(au&&au._bg){au._bg=0;if(auName){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}}}catch(e){}try{if(ctx&&ctx.state==='suspended')ctx.resume();}catch(e){}},
+    pauseAll(){BGM_HID=1;stop();try{if(au&&!au.paused){au.pause();au._bg=1;}}catch(e){}try{if(ctx&&ctx.state==='running')ctx.suspend();}catch(e){}},
+    resumeAll(){if(!on())return;try{if(au&&au._bg){au._bg=0;if(auName){const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{});}}}catch(e){}try{if(ctx&&ctx.state==='suspended')ctx.resume();}catch(e){}BGM_HID=0;if(window.__sgUnlocked)try{BGM.set(bgmName());}catch(e){}},
     toggle(){SAVE.music=!on();persist();if(!on()){stop();stopFile();cur=null;}},get on(){return on();}};})();
 function defRealm(){try{if(BCTX){if(BCTX.defRealm)return BCTX.defRealm;if(BCTX.eRealm)return BCTX.eRealm;}}catch(e){}return partyRealm()||'CQ';}
 function bgmName(){if(VIEW==='music')return MUSIC.sel||'lobby';if(VIEW!=='battle')return 'lobby';try{if(BCTX&&BCTX.boss&&BCTX.mode!=='free'&&BCTX.mode!=='pvp')return 'battle_boss';const r=defRealm();return r?'battle_'+r:'battle';}catch(e){return 'battle';}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)BGM.pauseAll();else BGM.resumeAll();});
+var BGM_HID=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)BGM.pauseAll();else BGM.resumeAll();});
 window.addEventListener('pagehide',()=>BGM.pauseAll());window.addEventListener('blur',()=>{if(document.hidden)BGM.pauseAll();});
 function sgUnlock(){if(window.__sgUnlocked){BGM.kick();return;}window.__sgUnlocked=true;try{SFX.unlock();}catch(e){}BGM.set(bgmName());}
 ['touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,sgUnlock,{capture:true,passive:true}));
@@ -1840,7 +1840,7 @@ function rulesHtml(){return __t('<div class="body"><p class="small" style="margi
  __t('<li><b>메즈</b>: 맞으면 풀리고, 풀린 뒤 2턴 면역. <b>무방비</b>: 메즈된 적을 때린 첫 공격은 피해 +50%. 메즈 저항 오라는 지속 1턴 감소.</li>')+__t('<li><b>해제</b>: 적 1명(일부 해제사는 피해도 줌)의 오라를 영구히 지우고 보호막을 벗기며 2턴간 받는 피해 +25%.</li>')+__t('<li><b>맞은편 열</b>: 아군과 적은 같은 열(x)끼리 마주 봅니다. 일부 패시브(견제 사격·독안개·약화·오라 차단)는 맞은편 같은 열의 적에게 작동합니다.</li>')+
  __t('<li><b>회복 직업은 진영마다 다릅니다</b>: 청구 무당(회복+부활), 요로즈 전투 무녀(공격하며 회복+부활), 곤륜 단약사(회복+독·약화, 부활 없음 — 대신 방술사가 강시로 부활). 지원 직업 대부분은 행동하지 않아도 작동하는 패시브가 있습니다.</li>')+
  __t('<li><b>피해</b> = 공격력 × 계수 × 2.4 × 100 ÷ (100 + 방어력*) × (1 − 그 원소 저항). *방어력(갑옷)은 물리(금)만 막고, 술법(흙·물·불·바람·전기)은 원소 저항으로만 막습니다. 치명타 1.5배.</li><li><b>버퍼</b>: 곁(2×2) 아군을 강화하는 오라가 늘 켜져 있고, 액티브로 아군 전체를 3턴간 강화(북잡이 공격 +15%)하거나 직접 싸웁니다.</li><li><b>퍼지</b>: 일부 캐릭터(진영별 2명)의 비장의 수. 전투당 1회, <b>메즈 중에도</b> 쓸 수 있고 자신의 메즈·약화·지속 피해를 지운 뒤 2턴 메즈 면역.</li><li><b>원소</b>: 금(金·물리)·흙(土)·물(水)·불(火)·바람(風)·전기(雷). 모든 공격 스킬·지속 피해는 캐릭터의 원소를 띱니다(칼·활·주먹은 금). 물리(금) 피해는 ×1.15. 저항은 기본 금 0%·술법 원소 15%에 진영 강점(청구 흙·바람, 요로즈 물·전기, 곤륜 물·바람·금), 자기 원소 +10%, 탱커 +10%가 붙고, 장비로 올려 <b>최대 50%</b>까지.</li>')+
- __t('<li><b>승리</b>: 상대 카드 전멸(손패 포함). 40턴이 지나면 남은 체력 비율로 판정.</li>')+
+ __t('<li><b>승리</b>: 상대 카드 전멸(손패 포함). 50턴이 지나면 남은 체력 비율로 판정.</li>')+
  __t('<li><b>레벨</b>: 전투가 끝나면 파티원 6명이 경험치를 받습니다(최대 Lv 50, 레벨당 체력·공격 +1.5%). 관문마다 적 레벨이 있습니다.</li>')+__t('<li><b>장비 13부위</b>: 무기·방패(탱커)·투구·갑옷·어깨·장갑·하의·신발·팔찌·귀걸이·목걸이·허리띠·아티팩트. 무기 종류는 캐릭터마다 정해져 있고, 갑옷 재질은 탱커·근접 사슬 / 원거리·암살 가죽 / 술법·지원 헝겊. 등급(일반·희귀·영웅·전설)이 높을수록 무작위 추가 옵션이 붙습니다. 장비 레벨 −3부터 착용 가능.</li>')+__t('<li><b>장비 스탯</b>: 체력·공격·방어·치명타·<b>원소 저항</b>(방어구·허리띠마다 1개)·<b>원소 피해</b>(무기는 자기 원소)·<b>상태 저항</b>(받는 약화 감소, 20% 이상이면 메즈 1턴 감소)·피해 감소·흡혈, 그리고 <b>스킬 보정</b>(공격·회복/보호·메즈·약화/해제 계열 +1당 위력 6%, 메즈 +3이면 지속 +1턴). 무기는 그 캐릭터 주력 계열 보정이 등급만큼 붙습니다.</li>')+__t('<li><b>아티팩트</b>: 가시·재생·흡혈·피해 감소 같은 특수 효과가 있는 유물. 보스 관문에서 잘 나옵니다.</li>')+__t('<li><b>숙련도</b>: 쓴 스킬의 숙련도가 오릅니다(최대 5). 진행은 이 기기에 저장됩니다.</li></ol>')+
  __t('<p class="small mut">카드 표시 — 노란 테두리: 이번 턴 행동 가능 · 금색 안쪽 테두리: 어그로 · 메: 메즈 · 면: 메즈 면역 · 후: 부활 후유증 · 막: 보호막 · 약: 디버프 · 독: 지속 피해 · 오: 오라 작동 · 은: 은신</p><h3 id="gloss" style="margin-top:16px">용어 사전</h3><dl class="gloss">')+GLOSS.map(g=>'<dt>'+g[0]+'</dt><dd>'+g[1]+'</dd>').join('')+'</dl></div>';}
 
@@ -1978,7 +1978,7 @@ function gridHtml(side){let h='';const pv=previewCells();
     if(!u&&side==='P'&&UI.deploy&&UI.deploy.x===x&&UI.deploy.y===y)inner='<div class="u P ghostdep realm-'+CH[UI.deploy.cid].realm+'">'+P(UI.deploy.cid)+__t('<div class="nm">등장</div></div>');
     h+='<div class="'+cls+'" style="'+pos+'" data-cell="'+side+','+x+','+y+'" role="button" tabindex="0" aria-label="'+(side==='P'?__t('아군'):__t('적'))+' '+(x+1)+__t('열 ')+(y+1)+__t('행">')+inner+'</div>';}
   if(!(UI.busy&&UI.pre))h+=auraBoxes(side);return h;}
-function battleHtml(){
+function battleHtml(){if(B&&B.maxTurn===40)B.maxTurn=50;
   const legal=UI.busy?[]:SG.legalActions(B,'P');
   const wide=window.innerWidth>=1000&&window.innerWidth>window.innerHeight*1.2;
   let h='<div class="bt'+(wide?'':' narrow')+__t('"><div class="bt-top"><button class="back" data-act="retreat">후퇴</button><span class="turnb">')+B.turn+__t('턴')+(B.maxTurn?'<small>/'+B.maxTurn+'</small>':'')+'</span>'+((BCTX&&BCTX.mode==='pvp')?'<span class="pvpt" id="pvpT"></span>':'')+'<span hidden></span><span class="ttl">'+esc(BCTX.name)+'</span>'+
