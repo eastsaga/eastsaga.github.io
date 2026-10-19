@@ -2438,7 +2438,7 @@ async function mmTick(){const m=SOC.mm;if(!m||m.busy)return;m.busy=true;try{cons
       if(ok){const keep=ROOM;mmStop(true);ROOM=keep;render();return;}else{pvpLeave();}}
     if(VIEW==='online')render();}catch(e){}m.busy=false;}
 function mmStop(keepRoom){const m=SOC.mm;if(!m)return;clearInterval(m.timer);try{m.off&&m.off();}catch(e){}SOC.mm=null;if(FBI&&NET.uid)FBI.remove('queue/'+NET.uid).catch(()=>{});if(!keepRoom)render();}
-function seenTxt(t){if(!t)return '';const m=(Date.now()-t)/60000;if(m<30)return __t('방금');if(m<23*60)return Math.round(m/60)+__t('시간 전');if(m<48*60)return __t('어제');return '';}
+function seenTxt(t){if(!t)return '';const now=new Date(),m=(now-t)/60000;if(m<30)return __t('방금');const d0=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();if(t>=d0)return Math.max(1,Math.round(m/60))+__t('시간 전');if(t>=d0-864e5)return __t('어제');return '';} // 보는 사람 기기의 현지 날짜 기준
 function friendRow(u){const p=SOC.pub[u]||{};const on=p.t&&Date.now()-p.t<5*60e3;const st=on?'':seenTxt(p.t);
   return '<div class="frr"><button class="frn" data-act="frView" data-u="'+u+'">'+(p.av&&CH[p.av]?'<span class="frav">'+cardHtml(p.av,{noName:1})+'</span>':'')+'<span><b>'+esc(p.name||'…')+'</b><small>Lv '+(p.plv||pStats(p.rec,p.cleared).lv)+(p.realm&&REALMS[p.realm]?' · '+REALMS[p.realm].name:'')+(on?__t(' · <i class="fron">접속 중</i>'):(st?' · <i class="frseen">'+st+'</i>':''))+'</small></span></button><button class="mini gold" data-act="frInvite" data-u="'+u+__t('">대전 신청</button></div>');}
 function friendView(u){const p=SOC.pub[u]||{};const r=(p.rec&&p.rec.realm)||{};const pv=(p.rec&&p.rec.pvp)||[0,0,0];
